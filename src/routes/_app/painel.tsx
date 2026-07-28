@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useList, ERROR_MESSAGE } from "@/lib/data";
+import { useList } from "@/lib/data";
 import { formatDate, formatMoney, monthRange, weekAhead } from "@/lib/format";
 import { PageHeader } from "@/components/app-shell";
 import { EmptyState, ErrorState, LoadingState } from "@/components/states";
@@ -134,7 +134,9 @@ function Painel() {
         )}
       </section>
 
-      <p className="mt-8 text-xs text-muted-foreground">{ERROR_MESSAGE ? "" : ""}</p>
+      <p className="mt-8 text-xs text-muted-foreground">
+        Os cálculos são simples e servem apenas para a organização interna do seu negócio.
+      </p>
     </div>
   );
 }
