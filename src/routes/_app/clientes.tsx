@@ -24,7 +24,7 @@ export const Route = createFileRoute("/_app/clientes")({
 const FIELDS: Field[] = [
   { name: "name", label: "Nome", required: true },
   { name: "whatsapp", label: "WhatsApp", placeholder: "Ex.: 5511999999999" },
-  { name: "email", label: "E-mail", type: "email" },
+  { name: "email", label: "E-mail" },
   { name: "notes", label: "Observação", type: "textarea" },
 ];
 
