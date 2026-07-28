@@ -67,11 +67,18 @@ function AuthPage() {
 
     if (error) {
       setLoading(false);
-      toast.error(
-        error.message.includes("already")
-          ? "Esse e-mail já tem conta. Faça login."
-          : "Não foi possível criar sua conta agora.",
-      );
+      const msg = error.message.toLowerCase();
+      if (msg.includes("already")) {
+        toast.error("Esse e-mail já tem conta. Faça login.");
+      } else if (msg.includes("weak") || msg.includes("pwned") || msg.includes("known")) {
+        toast.error(
+          "Essa senha é muito comum e fácil de descobrir. Escolha outra, com pelo menos 8 caracteres, misturando letras e números.",
+        );
+      } else if (msg.includes("password")) {
+        toast.error("A senha precisa ter pelo menos 8 caracteres.");
+      } else {
+        toast.error("Não foi possível criar sua conta agora. Tente novamente em instantes.");
+      }
       return;
     }
 
@@ -153,9 +160,13 @@ function AuthPage() {
                   id="signup-password"
                   name="password"
                   type="password"
-                  minLength={6}
+                  minLength={8}
                   required
                 />
+                <p className="text-xs text-muted-foreground">
+                  Use pelo menos 8 caracteres, com letras e números. Evite senhas comuns como
+                  "123456".
+                </p>
               </div>
               <Button type="submit" variant="acao" className="w-full" disabled={loading}>
                 Criar conta e começar
