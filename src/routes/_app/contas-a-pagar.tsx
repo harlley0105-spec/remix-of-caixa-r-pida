@@ -60,10 +60,7 @@ function ContasAPagar() {
         sourceType: "payable",
         sourceId: row.id,
       });
-      await supabase
-        .from("payables")
-        .update({ status: "paga", paid_on: today() })
-        .eq("id", row.id);
+      await supabase.from("payables").update({ status: "paga" }).eq("id", row.id);
       queryClient.invalidateQueries();
       toast.success("Conta paga registrada no caixa.");
     } catch {
@@ -101,9 +98,7 @@ function ContasAPagar() {
             <RecordCard
               key={row.id}
               title={row.supplier}
-              subtitle={`Vence em ${formatDate(row.due_on)}${
-                row.paid_on ? ` · paga em ${formatDate(row.paid_on)}` : ""
-              }`}
+              subtitle={`Vence em ${formatDate(row.due_on)}`}
               amount={row.amount}
               tone="saida"
               badge={<StatusTag status={row.status} />}
