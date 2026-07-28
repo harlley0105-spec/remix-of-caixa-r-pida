@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_app/relatorio")({
       { property: "og:description", content: "Resumo mensal do seu negócio." },
     ],
   }),
-  component: Relatorio;
+  component: Relatorio,
 });
 
 function shiftMonth(base: Date, delta: number) {
