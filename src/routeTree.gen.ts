@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppVendasRouteImport } from './routes/_app/vendas'
+import { Route as AppRelatorioRouteImport } from './routes/_app/relatorio'
 import { Route as AppProdutosRouteImport } from './routes/_app/produtos'
 import { Route as AppPainelRouteImport } from './routes/_app/painel'
 import { Route as AppLembretesRouteImport } from './routes/_app/lembretes'
@@ -39,6 +40,11 @@ const IndexRoute = IndexRouteImport.update({
 const AppVendasRoute = AppVendasRouteImport.update({
   id: '/vendas',
   path: '/vendas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRelatorioRoute = AppRelatorioRouteImport.update({
+  id: '/relatorio',
+  path: '/relatorio',
   getParentRoute: () => AppRoute,
 } as any)
 const AppProdutosRoute = AppProdutosRouteImport.update({
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/lembretes': typeof AppLembretesRoute
   '/painel': typeof AppPainelRoute
   '/produtos': typeof AppProdutosRoute
+  '/relatorio': typeof AppRelatorioRoute
   '/vendas': typeof AppVendasRoute
 }
 export interface FileRoutesByTo {
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/lembretes': typeof AppLembretesRoute
   '/painel': typeof AppPainelRoute
   '/produtos': typeof AppProdutosRoute
+  '/relatorio': typeof AppRelatorioRoute
   '/vendas': typeof AppVendasRoute
 }
 export interface FileRoutesById {
@@ -121,6 +129,7 @@ export interface FileRoutesById {
   '/_app/lembretes': typeof AppLembretesRoute
   '/_app/painel': typeof AppPainelRoute
   '/_app/produtos': typeof AppProdutosRoute
+  '/_app/relatorio': typeof AppRelatorioRoute
   '/_app/vendas': typeof AppVendasRoute
 }
 export interface FileRouteTypes {
@@ -136,6 +145,7 @@ export interface FileRouteTypes {
     | '/lembretes'
     | '/painel'
     | '/produtos'
+    | '/relatorio'
     | '/vendas'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/lembretes'
     | '/painel'
     | '/produtos'
+    | '/relatorio'
     | '/vendas'
   id:
     | '__root__'
@@ -163,6 +174,7 @@ export interface FileRouteTypes {
     | '/_app/lembretes'
     | '/_app/painel'
     | '/_app/produtos'
+    | '/_app/relatorio'
     | '/_app/vendas'
   fileRoutesById: FileRoutesById
 }
@@ -200,6 +212,13 @@ declare module '@tanstack/react-router' {
       path: '/vendas'
       fullPath: '/vendas'
       preLoaderRoute: typeof AppVendasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/relatorio': {
+      id: '/_app/relatorio'
+      path: '/relatorio'
+      fullPath: '/relatorio'
+      preLoaderRoute: typeof AppRelatorioRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/produtos': {
@@ -270,6 +289,7 @@ interface AppRouteChildren {
   AppLembretesRoute: typeof AppLembretesRoute
   AppPainelRoute: typeof AppPainelRoute
   AppProdutosRoute: typeof AppProdutosRoute
+  AppRelatorioRoute: typeof AppRelatorioRoute
   AppVendasRoute: typeof AppVendasRoute
 }
 
@@ -282,6 +302,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppLembretesRoute: AppLembretesRoute,
   AppPainelRoute: AppPainelRoute,
   AppProdutosRoute: AppProdutosRoute,
+  AppRelatorioRoute: AppRelatorioRoute,
   AppVendasRoute: AppVendasRoute,
 }
 
