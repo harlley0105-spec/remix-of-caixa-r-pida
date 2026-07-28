@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppVendasRouteImport } from './routes/_app/vendas'
+import { Route as AppProdutosRouteImport } from './routes/_app/produtos'
 import { Route as AppPainelRouteImport } from './routes/_app/painel'
 import { Route as AppDespesasRouteImport } from './routes/_app/despesas'
 import { Route as AppContasAReceberRouteImport } from './routes/_app/contas-a-receber'
@@ -37,6 +38,11 @@ const IndexRoute = IndexRouteImport.update({
 const AppVendasRoute = AppVendasRouteImport.update({
   id: '/vendas',
   path: '/vendas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProdutosRoute = AppProdutosRouteImport.update({
+  id: '/produtos',
+  path: '/produtos',
   getParentRoute: () => AppRoute,
 } as any)
 const AppPainelRoute = AppPainelRouteImport.update({
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/contas-a-receber': typeof AppContasAReceberRoute
   '/despesas': typeof AppDespesasRoute
   '/painel': typeof AppPainelRoute
+  '/produtos': typeof AppProdutosRoute
   '/vendas': typeof AppVendasRoute
 }
 export interface FileRoutesByTo {
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/contas-a-receber': typeof AppContasAReceberRoute
   '/despesas': typeof AppDespesasRoute
   '/painel': typeof AppPainelRoute
+  '/produtos': typeof AppProdutosRoute
   '/vendas': typeof AppVendasRoute
 }
 export interface FileRoutesById {
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/_app/contas-a-receber': typeof AppContasAReceberRoute
   '/_app/despesas': typeof AppDespesasRoute
   '/_app/painel': typeof AppPainelRoute
+  '/_app/produtos': typeof AppProdutosRoute
   '/_app/vendas': typeof AppVendasRoute
 }
 export interface FileRouteTypes {
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/contas-a-receber'
     | '/despesas'
     | '/painel'
+    | '/produtos'
     | '/vendas'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/contas-a-receber'
     | '/despesas'
     | '/painel'
+    | '/produtos'
     | '/vendas'
   id:
     | '__root__'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/_app/contas-a-receber'
     | '/_app/despesas'
     | '/_app/painel'
+    | '/_app/produtos'
     | '/_app/vendas'
   fileRoutesById: FileRoutesById
 }
@@ -176,6 +188,13 @@ declare module '@tanstack/react-router' {
       path: '/vendas'
       fullPath: '/vendas'
       preLoaderRoute: typeof AppVendasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/produtos': {
+      id: '/_app/produtos'
+      path: '/produtos'
+      fullPath: '/produtos'
+      preLoaderRoute: typeof AppProdutosRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/painel': {
@@ -230,6 +249,7 @@ interface AppRouteChildren {
   AppContasAReceberRoute: typeof AppContasAReceberRoute
   AppDespesasRoute: typeof AppDespesasRoute
   AppPainelRoute: typeof AppPainelRoute
+  AppProdutosRoute: typeof AppProdutosRoute
   AppVendasRoute: typeof AppVendasRoute
 }
 
@@ -240,6 +260,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppContasAReceberRoute: AppContasAReceberRoute,
   AppDespesasRoute: AppDespesasRoute,
   AppPainelRoute: AppPainelRoute,
+  AppProdutosRoute: AppProdutosRoute,
   AppVendasRoute: AppVendasRoute,
 }
 
