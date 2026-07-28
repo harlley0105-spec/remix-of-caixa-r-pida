@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppVendasRouteImport } from './routes/_app/vendas'
 import { Route as AppPainelRouteImport } from './routes/_app/painel'
 import { Route as AppDespesasRouteImport } from './routes/_app/despesas'
+import { Route as AppContasAPagarRouteImport } from './routes/_app/contas-a-pagar'
 import { Route as AppCaixaRouteImport } from './routes/_app/caixa'
 
 const AuthRoute = AuthRouteImport.update({
@@ -46,6 +47,11 @@ const AppDespesasRoute = AppDespesasRouteImport.update({
   path: '/despesas',
   getParentRoute: () => AppRoute,
 } as any)
+const AppContasAPagarRoute = AppContasAPagarRouteImport.update({
+  id: '/contas-a-pagar',
+  path: '/contas-a-pagar',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppCaixaRoute = AppCaixaRouteImport.update({
   id: '/caixa',
   path: '/caixa',
@@ -56,6 +62,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/caixa': typeof AppCaixaRoute
+  '/contas-a-pagar': typeof AppContasAPagarRoute
   '/despesas': typeof AppDespesasRoute
   '/painel': typeof AppPainelRoute
   '/vendas': typeof AppVendasRoute
@@ -64,6 +71,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/caixa': typeof AppCaixaRoute
+  '/contas-a-pagar': typeof AppContasAPagarRoute
   '/despesas': typeof AppDespesasRoute
   '/painel': typeof AppPainelRoute
   '/vendas': typeof AppVendasRoute
@@ -74,21 +82,37 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
   '/_app/caixa': typeof AppCaixaRoute
+  '/_app/contas-a-pagar': typeof AppContasAPagarRoute
   '/_app/despesas': typeof AppDespesasRoute
   '/_app/painel': typeof AppPainelRoute
   '/_app/vendas': typeof AppVendasRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/caixa' | '/despesas' | '/painel' | '/vendas'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/caixa'
+    | '/contas-a-pagar'
+    | '/despesas'
+    | '/painel'
+    | '/vendas'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/caixa' | '/despesas' | '/painel' | '/vendas'
+  to:
+    | '/'
+    | '/auth'
+    | '/caixa'
+    | '/contas-a-pagar'
+    | '/despesas'
+    | '/painel'
+    | '/vendas'
   id:
     | '__root__'
     | '/'
     | '/_app'
     | '/auth'
     | '/_app/caixa'
+    | '/_app/contas-a-pagar'
     | '/_app/despesas'
     | '/_app/painel'
     | '/_app/vendas'
@@ -144,6 +168,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDespesasRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/contas-a-pagar': {
+      id: '/_app/contas-a-pagar'
+      path: '/contas-a-pagar'
+      fullPath: '/contas-a-pagar'
+      preLoaderRoute: typeof AppContasAPagarRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/caixa': {
       id: '/_app/caixa'
       path: '/caixa'
@@ -156,6 +187,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppCaixaRoute: typeof AppCaixaRoute
+  AppContasAPagarRoute: typeof AppContasAPagarRoute
   AppDespesasRoute: typeof AppDespesasRoute
   AppPainelRoute: typeof AppPainelRoute
   AppVendasRoute: typeof AppVendasRoute
@@ -163,6 +195,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppCaixaRoute: AppCaixaRoute,
+  AppContasAPagarRoute: AppContasAPagarRoute,
   AppDespesasRoute: AppDespesasRoute,
   AppPainelRoute: AppPainelRoute,
   AppVendasRoute: AppVendasRoute,
