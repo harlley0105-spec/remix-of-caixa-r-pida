@@ -41,6 +41,7 @@ export function FormDialog({
   onSubmit,
   submitLabel = "Salvar",
   extra,
+  onFieldChange,
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -51,6 +52,11 @@ export function FormDialog({
   onSubmit: (values: Record<string, any>) => Promise<void> | void;
   submitLabel?: string;
   extra?: ReactNode;
+  onFieldChange?: (
+    name: string,
+    value: any,
+    setValues: React.Dispatch<React.SetStateAction<Record<string, any>>>,
+  ) => void;
 }) {
   const [values, setValues] = useState<Record<string, any>>(initial ?? {});
   const [saving, setSaving] = useState(false);
@@ -60,7 +66,10 @@ export function FormDialog({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  const set = (name: string, value: any) => setValues((v) => ({ ...v, [name]: value }));
+  const set = (name: string, value: any) => {
+    setValues((v) => ({ ...v, [name]: value }));
+    onFieldChange?.(name, value, setValues);
+  };
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
