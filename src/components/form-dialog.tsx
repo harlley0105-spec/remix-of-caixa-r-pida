@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { OFFLINE_MESSAGE } from "@/lib/data";
 import {
   Select,
   SelectContent,
@@ -86,8 +87,13 @@ export function FormDialog({
       }
       await onSubmit(parsed);
       onOpenChange(false);
-    } catch {
-      toast.error("Não foi possível salvar agora. Confira os dados e tente de novo.");
+    } catch (error) {
+      const offline = error instanceof Error && error.message === OFFLINE_MESSAGE;
+      toast.error(
+        offline
+          ? OFFLINE_MESSAGE
+          : "Não foi possível salvar agora. Confira os dados e tente de novo.",
+      );
     } finally {
       setSaving(false);
     }
