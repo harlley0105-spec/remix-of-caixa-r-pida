@@ -51,6 +51,8 @@ function Painel() {
   const aReceber = (receivables.data ?? []).filter(
     (r) => r.status === "pendente" && r.due_on <= semana.end,
   );
+  const atrasados = aPagar.filter((p) => p.due_on < semana.start).length +
+    aReceber.filter((r) => r.due_on < semana.start).length;
 
   return (
     <div>
@@ -73,7 +75,9 @@ function Painel() {
       </section>
 
       <section className="mt-6">
-        <h2 className="font-display text-lg">Vence nesta semana</h2>
+        <h2 className="font-display text-lg">
+          Vence nesta semana{atrasados > 0 ? ` (${atrasados} atrasada${atrasados > 1 ? "s" : ""})` : ""}
+        </h2>
         {aPagar.length === 0 && aReceber.length === 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">Nada vencendo nos próximos 7 dias.</p>
         ) : (
@@ -82,7 +86,7 @@ function Painel() {
               <RecordCard
                 key={p.id}
                 title={`Pagar: ${p.supplier}`}
-                subtitle={`Vence em ${formatDate(p.due_on)}`}
+                subtitle={p.due_on < semana.start ? `Atrasada desde ${formatDate(p.due_on)}` : `Vence em ${formatDate(p.due_on)}`}
                 amount={p.amount}
                 tone="saida"
               />
@@ -91,7 +95,7 @@ function Painel() {
               <RecordCard
                 key={r.id}
                 title={`Receber de ${r.client_name}`}
-                subtitle={`Vence em ${formatDate(r.due_on)}`}
+                subtitle={r.due_on < semana.start ? `Atrasada desde ${formatDate(r.due_on)}` : `Vence em ${formatDate(r.due_on)}`}
                 amount={r.amount}
                 tone="entrada"
               />

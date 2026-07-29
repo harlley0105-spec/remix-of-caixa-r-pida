@@ -6,8 +6,9 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ensureLedgerEntry,
+  syncLedgerEntry,
   useCompany,
-  useDeleteRow,
+  useDeleteRowWithLedger,
   useList,
   useSaveRow,
   type Row,
@@ -40,7 +41,7 @@ function Vendas() {
   const products = useList("products", "name", true);
   const { data: profile } = useCompany();
   const save = useSaveRow("sales");
-  const remove = useDeleteRow("sales");
+  const remove = useDeleteRowWithLedger("sales", "sale");
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Row<"sales"> | null>(null);
@@ -60,7 +61,16 @@ function Vendas() {
       name: "product_name",
       label: "Produto ou serviço",
       type: "select",
-      options: (products.data ?? []).map((p) => ({ value: p.name, label: p.name })),
+      options: (() => {
+        const active = (products.data ?? []).filter((p) => p.active);
+        const options = active.map((p) => ({ value: p.name, label: p.name }));
+        // Se estiver editando uma venda cujo produto foi desativado depois, mantém
+        // ele selecionável nessa edição para não quebrar o registro existente.
+        if (editing?.product_name && !active.some((p) => p.name === editing.product_name)) {
+          options.push({ value: editing.product_name, label: `${editing.product_name} (inativo)` });
+        }
+        return options;
+      })(),
       hint: "Cadastre em Produtos/serviços para aparecer aqui. O valor unitário abaixo é preenchido sozinho com o preço cadastrado.",
     },
     {
@@ -222,37 +232,25 @@ function Vendas() {
           });
 
           if (values.status === "paga" && profile?.company_id) {
-            const { data: existing } = await supabase
-              .from("transactions")
-              .select("id")
-              .eq("source_type", "sale")
-              .eq("source_id", saleId)
-              .maybeSingle();
-
-            if (existing) {
-              // Venda já estava paga e foi editada — atualiza o valor no caixa em vez de duplicar.
-              await supabase
-                .from("transactions")
-                .update({
-                  amount: total,
-                  occurred_on: values.sold_on,
-                  description: `Venda: ${values.product_name}`,
-                  payment_method: values.payment_method,
-                })
-                .eq("id", existing.id);
-            } else {
-              await ensureLedgerEntry({
-                companyId: profile.company_id,
-                kind: "entrada",
-                amount: total,
-                occurred_on: values.sold_on,
-                category: "Vendas",
-                description: `Venda: ${values.product_name}`,
-                payment_method: values.payment_method,
-                sourceType: "sale",
-                sourceId: saleId,
-              });
-            }
+            // Venda paga: cria o lançamento se ainda não existir, ou atualiza o valor
+            // se já existia (evita duplicar e mantém o Caixa em dia após uma edição).
+            await ensureLedgerEntry({
+              companyId: profile.company_id,
+              kind: "entrada",
+              amount: total,
+              occurred_on: values.sold_on,
+              category: "Vendas",
+              description: `Venda: ${values.product_name}`,
+              payment_method: values.payment_method,
+              sourceType: "sale",
+              sourceId: saleId,
+            });
+            await syncLedgerEntry("sale", saleId, {
+              amount: total,
+              occurred_on: values.sold_on,
+              description: `Venda: ${values.product_name}`,
+              payment_method: values.payment_method,
+            });
           } else {
             // Status não é mais "paga" — remove do caixa a entrada que tinha sido criada antes,
             // senão o dinheiro continua contando mesmo a venda estando pendente/cancelada.

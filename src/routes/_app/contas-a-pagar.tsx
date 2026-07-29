@@ -6,8 +6,9 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ensureLedgerEntry,
+  syncLedgerEntry,
   useCompany,
-  useDeleteRow,
+  useDeleteRowWithLedger,
   useList,
   useSaveRow,
   type Row,
@@ -42,7 +43,7 @@ function ContasAPagar() {
   const { data, isLoading, isError, refetch } = useList("payables", "due_on", true);
   const { data: profile } = useCompany();
   const save = useSaveRow("payables");
-  const remove = useDeleteRow("payables");
+  const remove = useDeleteRowWithLedger("payables", "payable");
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Row<"payables"> | null>(null);
@@ -128,7 +129,15 @@ function ContasAPagar() {
         fields={FIELDS}
         initial={editing ? ({ ...editing } as any) : { due_on: today(), status: "pendente" }}
         onSubmit={async (values) => {
-          await save.mutateAsync(values);
+          const id = await save.mutateAsync(values);
+          if (values.status === "paga") {
+            // Se essa conta já estava paga e foi editada, mantém o lançamento no
+            // Caixa com o valor/data atualizados em vez de deixar desatualizado.
+            await syncLedgerEntry("payable", id, {
+              amount: Number(values.amount ?? 0),
+              description: `Pagamento: ${values.supplier}`,
+            });
+          }
           toast.success("Conta salva.");
         }}
       />

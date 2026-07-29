@@ -6,8 +6,9 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ensureLedgerEntry,
+  syncLedgerEntry,
   useCompany,
-  useDeleteRow,
+  useDeleteRowWithLedger,
   useList,
   useSaveRow,
   type Row,
@@ -36,7 +37,7 @@ function ContasAReceber() {
   const clients = useList("clients", "name", true);
   const { data: profile } = useCompany();
   const save = useSaveRow("receivables");
-  const remove = useDeleteRow("receivables");
+  const remove = useDeleteRowWithLedger("receivables", "receivable");
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Row<"receivables"> | null>(null);
@@ -159,7 +160,13 @@ function ContasAReceber() {
         initial={editing ? ({ ...editing } as any) : { due_on: today(), status: "pendente" }}
         onSubmit={async (values) => {
           const client = (clients.data ?? []).find((c) => c.name === values.client_name);
-          await save.mutateAsync({ ...values, client_id: client?.id ?? null });
+          const id = await save.mutateAsync({ ...values, client_id: client?.id ?? null });
+          if (values.status === "recebido") {
+            await syncLedgerEntry("receivable", id, {
+              amount: Number(values.amount ?? 0),
+              description: `Recebido de ${values.client_name}`,
+            });
+          }
           toast.success("Cobrança salva.");
         }}
       />

@@ -1,8 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { useDeleteRow, useList, useSaveRow, type Row } from "@/lib/data";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  ensureLedgerEntry,
+  syncLedgerEntry,
+  useCompany,
+  useDeleteRowWithLedger,
+  useList,
+  useSaveRow,
+  type Row,
+} from "@/lib/data";
 import { formatDate, today } from "@/lib/format";
 import { PageHeader } from "@/components/app-shell";
 import { EmptyState, ErrorState, LoadingState } from "@/components/states";
@@ -44,16 +54,39 @@ const FIELDS: Field[] = [
 
 function Despesas() {
   const { data, isLoading, isError, refetch } = useList("expenses", "spent_on");
+  const { data: profile } = useCompany();
   const save = useSaveRow("expenses");
-  const remove = useDeleteRow("expenses");
+  const remove = useDeleteRowWithLedger("expenses", "expense");
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Row<"expenses"> | null>(null);
+
+  async function marcarPaga(expense: Row<"expenses">) {
+    if (!profile?.company_id) return;
+    try {
+      await ensureLedgerEntry({
+        companyId: profile.company_id,
+        kind: "saida",
+        amount: Number(expense.amount),
+        occurred_on: expense.spent_on,
+        category: expense.category ?? "Despesas",
+        description: expense.description || "Despesa",
+        sourceType: "expense",
+        sourceId: expense.id,
+      });
+      await supabase.from("expenses").update({ status: "paga" }).eq("id", expense.id);
+      queryClient.invalidateQueries();
+      toast.success("Despesa paga registrada no caixa.");
+    } catch {
+      toast.error("Não foi possível registrar agora. Tente novamente em instantes.");
+    }
+  }
 
   return (
     <div>
       <PageHeader
         title="Despesas"
-        subtitle="Os gastos do dia a dia do seu negócio."
+        subtitle="Ao marcar como paga, a saída entra no caixa."
         action={
           <Button
             variant="acao"
@@ -85,6 +118,13 @@ function Despesas() {
               amount={expense.amount}
               tone="saida"
               badge={<StatusTag status={expense.status} />}
+              actions={
+                expense.status === "pendente" ? (
+                  <Button size="sm" variant="saida" onClick={() => marcarPaga(expense)}>
+                    Marcar como paga
+                  </Button>
+                ) : null
+              }
               onEdit={() => {
                 setEditing(expense);
                 setOpen(true);
@@ -106,7 +146,26 @@ function Despesas() {
           editing ? ({ ...editing } as any) : { spent_on: today(), status: "pendente" }
         }
         onSubmit={async (values) => {
-          await save.mutateAsync(values);
+          const id = await save.mutateAsync(values);
+          if (values.status === "paga" && profile?.company_id) {
+            await ensureLedgerEntry({
+              companyId: profile.company_id,
+              kind: "saida",
+              amount: Number(values.amount ?? 0),
+              occurred_on: values.spent_on,
+              category: values.category ?? "Despesas",
+              description: values.description || "Despesa",
+              sourceType: "expense",
+              sourceId: id,
+            });
+            await syncLedgerEntry("expense", id, {
+              amount: Number(values.amount ?? 0),
+              description: values.description || "Despesa",
+            });
+          } else {
+            // Voltou para "pendente" — remove o lançamento que existia, se houver.
+            await supabase.from("transactions").delete().eq("source_type", "expense").eq("source_id", id);
+          }
           toast.success("Despesa salva.");
         }}
       />

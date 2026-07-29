@@ -80,6 +80,51 @@ export function useDeleteRow<T extends TableName>(table: T) {
   });
 }
 
+/**
+ * Como useDeleteRow, mas também remove o lançamento de caixa gerado a partir
+ * desse registro (venda paga, conta paga/recebida) — evita "sobrar" saldo
+ * no Caixa referente a algo que não existe mais.
+ */
+export function useDeleteRowWithLedger<T extends TableName>(table: T, sourceType: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await supabase.from("transactions").delete().eq("source_type", sourceType).eq("source_id", id);
+      const { error } = await (supabase.from(table) as any).delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => invalidateAll(qc),
+  });
+}
+
+/**
+ * Atualiza o lançamento de caixa vinculado a um registro (se existir), para
+ * manter o valor/data/descrição em dia quando o registro de origem é editado
+ * depois de já estar pago/recebido.
+ */
+export async function syncLedgerEntry(
+  sourceType: string,
+  sourceId: string,
+  patch: { amount: number; occurred_on?: string; description: string; payment_method?: string | null },
+) {
+  const { data: existing } = await supabase
+    .from("transactions")
+    .select("id")
+    .eq("source_type", sourceType)
+    .eq("source_id", sourceId)
+    .maybeSingle();
+  if (!existing) return;
+  await supabase
+    .from("transactions")
+    .update({
+      amount: patch.amount,
+      ...(patch.occurred_on ? { occurred_on: patch.occurred_on } : {}),
+      description: patch.description,
+      payment_method: patch.payment_method ?? null,
+    })
+    .eq("id", existing.id);
+}
+
 type LedgerInput = {
   companyId: string;
   kind: "entrada" | "saida";
