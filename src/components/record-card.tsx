@@ -51,7 +51,7 @@ export function RecordCard({
   onDelete?: () => void;
 }) {
   return (
-    <li className="rounded-xl border border-border bg-card p-4 shadow-livro">
+    <li className="animate-in fade-in slide-in-from-bottom-1 rounded-xl border border-border bg-card p-4 shadow-livro transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="font-medium leading-tight">{title}</p>

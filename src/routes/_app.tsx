@@ -3,8 +3,7 @@ import { Outlet, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/session";
-import { OFFLINE_MESSAGE, useCompany, withTimeout } from "@/lib/data";
-import { toast } from "sonner";
+import { useCompany } from "@/lib/data";
 import { AppShell } from "@/components/app-shell";
 import { LoadingState } from "@/components/states";
 import { Button } from "@/components/ui/button";
@@ -49,45 +48,21 @@ function Onboarding() {
     if (!session) return;
     const form = new FormData(event.currentTarget);
     setSaving(true);
-    try {
-      await withTimeout(async () => {
-        // Reaproveita a empresa já criada no cadastro, se existir — evita
-        // empresa duplicada quando esta tela aparece por engano.
-        const { data: existing } = await supabase
-          .from("companies")
-          .select("id")
-          .eq("owner_id", session.user.id)
-          .limit(1)
-          .maybeSingle();
-
-        let companyId = existing?.id;
-        if (!companyId) {
-          const { data: company, error } = await supabase
-            .from("companies")
-            .insert({ name: String(form.get("company_name")), owner_id: session.user.id })
-            .select("id")
-            .single();
-          if (error) throw error;
-          companyId = company.id;
-        }
-
-        const { error: profileError } = await supabase.from("profiles").upsert({
-          id: session.user.id,
-          company_id: companyId,
-          full_name: String(form.get("full_name")),
-          email: session.user.email,
-        });
-        if (profileError) throw profileError;
+    const { data: company } = await supabase
+      .from("companies")
+      .insert({ name: String(form.get("company_name")), owner_id: session.user.id })
+      .select("id")
+      .single();
+    if (company) {
+      await supabase.from("profiles").insert({
+        id: session.user.id,
+        company_id: company.id,
+        full_name: String(form.get("full_name")),
+        email: session.user.email,
       });
-      await queryClient.invalidateQueries();
-    } catch (error) {
-      const offline = error instanceof Error && error.message === OFFLINE_MESSAGE;
-      toast.error(
-        offline ? OFFLINE_MESSAGE : "Não foi possível salvar agora. Tente novamente em instantes.",
-      );
-    } finally {
-      setSaving(false);
+      queryClient.invalidateQueries();
     }
+    setSaving(false);
   }
 
   return (

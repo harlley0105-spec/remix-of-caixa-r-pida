@@ -1,10 +1,19 @@
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { useList } from "@/lib/data";
 import { formatMoney, monthLabel, monthRange } from "@/lib/format";
 import { PageHeader } from "@/components/app-shell";
 import { EmptyState, ErrorState, LoadingState } from "@/components/states";
 import { Button } from "@/components/ui/button";
+
+const CORES_CATEGORIA = [
+  "var(--color-chart-2)",
+  "var(--color-chart-3)",
+  "var(--color-chart-4)",
+  "var(--color-chart-1)",
+  "var(--color-chart-5)",
+];
 
 export const Route = createFileRoute("/_app/relatorio")({
   head: () => ({
@@ -76,34 +85,74 @@ function Relatorio() {
         <EmptyState message="Nenhum lançamento neste mês ainda." />
       ) : (
         <>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 grid gap-3 sm:grid-cols-3">
             <Card rotulo="Total de entradas" valor={entradas} className="text-entrada" />
             <Card rotulo="Total de saídas" valor={saidas} className="text-saida" />
             <Card rotulo="Lucro estimado" valor={entradas - saidas} className="text-acao" />
           </div>
 
-          <section className="mt-6 rounded-xl border border-border bg-card p-4 shadow-livro">
-            <h2 className="font-display text-lg">Maiores gastos por categoria</h2>
-            {categorias.length === 0 ? (
-              <p className="mt-2 text-sm text-muted-foreground">Sem saídas neste mês.</p>
-            ) : (
-              <ul className="mt-3 space-y-2">
-                {categorias.map(([nome, valor]) => (
-                  <li key={nome}>
-                    <div className="flex items-center justify-between text-sm">
-                      <span>{nome}</span>
-                      <span className="valor">{formatMoney(valor)}</span>
-                    </div>
-                    <div className="mt-1 h-2 rounded-full bg-muted">
-                      <div
-                        className="h-2 rounded-full bg-saida"
-                        style={{ width: `${saidas ? (valor / saidas) * 100 : 0}%` }}
-                      />
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
+          <section className="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100 mt-6 grid gap-4 rounded-xl border border-border bg-card p-4 shadow-livro sm:grid-cols-2">
+            <div>
+              <h2 className="font-display text-lg">Maiores gastos por categoria</h2>
+              {categorias.length === 0 ? (
+                <p className="mt-2 text-sm text-muted-foreground">Sem saídas neste mês.</p>
+              ) : (
+                <ul className="mt-3 space-y-2">
+                  {categorias.map(([nome, valor]: [string, number], i: number) => (
+                    <li key={nome}>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="flex items-center gap-2">
+                          <span
+                            className="h-2.5 w-2.5 rounded-full"
+                            style={{ background: CORES_CATEGORIA[i % CORES_CATEGORIA.length] }}
+                          />
+                          {nome}
+                        </span>
+                        <span className="valor">{formatMoney(valor)}</span>
+                      </div>
+                      <div className="mt-1 h-2 rounded-full bg-muted">
+                        <div
+                          className="h-2 rounded-full transition-all duration-500"
+                          style={{
+                            width: `${saidas ? (valor / saidas) * 100 : 0}%`,
+                            background: CORES_CATEGORIA[i % CORES_CATEGORIA.length],
+                          }}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            {categorias.length > 0 ? (
+              <div className="h-48 sm:h-auto">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categorias.map(([nome, valor]: [string, number]) => ({ nome, valor }))}
+                      dataKey="valor"
+                      nameKey="nome"
+                      innerRadius="55%"
+                      outerRadius="80%"
+                      paddingAngle={2}
+                    >
+                      {categorias.map(([nome]: [string, number], i: number) => (
+                        <Cell key={nome} fill={CORES_CATEGORIA[i % CORES_CATEGORIA.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: number) => formatMoney(value)}
+                      contentStyle={{
+                        background: "var(--color-card)",
+                        border: "1px solid var(--color-border)",
+                        borderRadius: 8,
+                        fontSize: 12,
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            ) : null}
           </section>
 
           <p className="mt-6 text-xs text-muted-foreground">
@@ -126,7 +175,7 @@ function Card({
   className?: string;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-livro">
+    <div className="rounded-xl border border-border bg-card p-4 shadow-livro transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg">
       <p className="text-xs uppercase tracking-wide text-muted-foreground">{rotulo}</p>
       <p className={`valor mt-1 text-xl font-semibold ${className ?? ""}`}>{formatMoney(valor)}</p>
     </div>

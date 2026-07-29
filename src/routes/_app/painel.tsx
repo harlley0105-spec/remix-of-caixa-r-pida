@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import { useList } from "@/lib/data";
 import { formatDate, formatMoney, monthRange, weekAhead } from "@/lib/format";
 import { PageHeader } from "@/components/app-shell";
@@ -54,6 +55,20 @@ function Painel() {
   const atrasados = aPagar.filter((p) => p.due_on < semana.start).length +
     aReceber.filter((r) => r.due_on < semana.start).length;
 
+  const meses = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date();
+    d.setDate(1);
+    d.setMonth(d.getMonth() - (5 - i));
+    const { start: s, end: e } = monthRange(d);
+    const doMes = rows.filter((t) => t.occurred_on >= s && t.occurred_on <= e);
+    return {
+      mes: d.toLocaleDateString("pt-BR", { month: "short" }).replace(".", ""),
+      entrada: doMes.filter((t) => t.kind === "entrada").reduce((a, t) => a + Number(t.amount), 0),
+      saida: doMes.filter((t) => t.kind === "saida").reduce((a, t) => a + Number(t.amount), 0),
+    };
+  });
+  const temHistorico = meses.some((m) => m.entrada > 0 || m.saida > 0);
+
   return (
     <div>
       <PageHeader
@@ -66,7 +81,7 @@ function Painel() {
         }
       />
 
-      <section className="rounded-2xl bg-capa p-6 text-capa-foreground shadow-capa">
+      <section className="animate-in fade-in slide-in-from-bottom-2 duration-500 rounded-2xl bg-capa p-6 text-capa-foreground shadow-capa">
         <p className="text-xs uppercase tracking-[0.2em] text-capa-foreground/50">Saldo atual</p>
         <p className="valor mt-2 text-4xl font-semibold">{formatMoney(saldo)}</p>
         <p className="mt-2 text-xs text-capa-foreground/50">
@@ -74,7 +89,61 @@ function Painel() {
         </p>
       </section>
 
-      <section className="mt-6">
+      {temHistorico ? (
+        <section className="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-75 mt-6 rounded-xl border border-border bg-card p-4 shadow-livro">
+          <h2 className="font-display text-lg">Entradas x saídas — últimos 6 meses</h2>
+          <div className="mt-2 h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={meses} margin={{ top: 8, right: 8, left: 8, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="corEntrada" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-entrada)" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="var(--color-entrada)" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="corSaida" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-saida)" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="var(--color-saida)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" vertical={false} />
+                <XAxis
+                  dataKey="mes"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "var(--color-muted-foreground)", fontSize: 12 }}
+                />
+                <Tooltip
+                  formatter={(value: number) => formatMoney(value)}
+                  contentStyle={{
+                    background: "var(--color-card)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="entrada"
+                  stroke="var(--color-entrada)"
+                  fill="url(#corEntrada)"
+                  strokeWidth={2}
+                  name="Entradas"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="saida"
+                  stroke="var(--color-saida)"
+                  fill="url(#corSaida)"
+                  strokeWidth={2}
+                  name="Saídas"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+      ) : null}
+
+      <section className="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100 mt-6">
         <h2 className="font-display text-lg">
           Vence nesta semana{atrasados > 0 ? ` (${atrasados} atrasada${atrasados > 1 ? "s" : ""})` : ""}
         </h2>
@@ -104,13 +173,13 @@ function Painel() {
         )}
       </section>
 
-      <section className="mt-6 grid gap-3 sm:grid-cols-3">
+      <section className="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150 mt-6 grid gap-3 sm:grid-cols-3">
         <Resumo rotulo="Entrou no mês" valor={entradasMes} tone="entrada" />
         <Resumo rotulo="Saiu no mês" valor={saidasMes} tone="saida" />
         <Resumo rotulo="Lucro estimado" valor={entradasMes - saidasMes} destaque />
       </section>
 
-      <section className="mt-6">
+      <section className="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200 mt-6">
         <h2 className="font-display text-lg">Lançamentos recentes</h2>
         {rows.length === 0 ? (
           <div className="mt-3">
@@ -157,7 +226,7 @@ function Resumo({
   destaque?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-livro">
+    <div className="rounded-xl border border-border bg-card p-4 shadow-livro transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg">
       <p className="text-xs uppercase tracking-wide text-muted-foreground">{rotulo}</p>
       <p
         className={`valor mt-1 text-xl font-semibold ${
