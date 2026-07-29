@@ -19,7 +19,6 @@ export const OFFLINE_MESSAGE =
  * uma mensagem amigável.
  */
 export async function withTimeout<T>(run: () => Promise<T>, ms = 12000): Promise<T> {
-  console.log("[dbg] withTimeout start", typeof navigator !== "undefined" ? navigator.onLine : "n/a");
   if (typeof navigator !== "undefined" && navigator.onLine === false) {
     throw new Error(OFFLINE_MESSAGE);
   }

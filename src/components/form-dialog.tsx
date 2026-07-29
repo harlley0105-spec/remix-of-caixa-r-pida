@@ -88,7 +88,6 @@ export function FormDialog({
       await onSubmit(parsed);
       onOpenChange(false);
     } catch (error) {
-      console.log("[dbg] catch", String(error));
       const offline = error instanceof Error && error.message === OFFLINE_MESSAGE;
       toast.error(
         offline
