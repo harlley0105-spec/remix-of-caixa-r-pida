@@ -33,10 +33,26 @@ const FIELDS: Field[] = [
       { value: "servico", label: "Serviço" },
     ],
   },
-  { name: "price", label: "Preço de venda", type: "money", required: true },
-  { name: "cost", label: "Custo (opcional)", type: "money" },
+  {
+    name: "price",
+    label: "Preço de venda",
+    type: "money",
+    required: true,
+    hint: "Esse é o preço que aparece sozinho na tela de Vendas — pode ser ajustado ali se precisar dar desconto numa venda específica.",
+  },
+  {
+    name: "cost",
+    label: "Custo (opcional)",
+    type: "money",
+    hint: "Só pra você acompanhar sua margem — não aparece pro cliente nem entra nos relatórios de venda.",
+  },
   { name: "category", label: "Categoria" },
-  { name: "active", label: "Ativo", type: "switch" },
+  {
+    name: "active",
+    label: "Ativo",
+    type: "switch",
+    hint: "Desligue quando parar de vender esse item. Ele some da lista de Vendas, mas o histórico de vendas antigas continua intacto — diferente de excluir.",
+  },
 ];
 
 function Produtos() {
@@ -76,11 +92,9 @@ function Produtos() {
             <RecordCard
               key={item.id}
               title={item.name}
-              subtitle={`${item.kind === "servico" ? "Serviço" : "Produto"}${
-                item.category ? ` · ${item.category}` : ""
-              }${item.cost != null ? ` · custo ${formatMoney(item.cost)}` : ""}${
-                item.active ? "" : " · inativo"
-              }`}
+              subtitle={`${item.kind === "servico" ? "Serviço" : "Produto"}${item.category ? ` · ${item.category}` : ""
+                }${item.cost != null ? ` · custo ${formatMoney(item.cost)}` : ""}${item.active ? "" : " · inativo"
+                }`}
               amount={item.price}
               onEdit={() => {
                 setEditing(item);
