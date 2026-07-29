@@ -86,8 +86,12 @@ export function FormDialog({
       }
       await onSubmit(parsed);
       onOpenChange(false);
-    } catch {
-      toast.error("Não foi possível salvar agora. Confira os dados e tente de novo.");
+    } catch (error) {
+      const message =
+        error instanceof Error && error.message
+          ? error.message
+          : "Não foi possível salvar agora. Confira os dados e tente de novo.";
+      toast.error(message);
     } finally {
       setSaving(false);
     }
