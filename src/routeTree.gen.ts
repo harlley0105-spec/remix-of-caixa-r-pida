@@ -9,24 +9,28 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AppVendasRouteImport } from './routes/_app/vendas'
-import { Route as AppRelatorioRouteImport } from './routes/_app/relatorio'
-import { Route as AppProdutosRouteImport } from './routes/_app/produtos'
-import { Route as AppPainelRouteImport } from './routes/_app/painel'
-import { Route as AppLembretesRouteImport } from './routes/_app/lembretes'
-import { Route as AppDespesasRouteImport } from './routes/_app/despesas'
-import { Route as AppContasAReceberRouteImport } from './routes/_app/contas-a-receber'
-import { Route as AppContasAPagarRouteImport } from './routes/_app/contas-a-pagar'
-import { Route as AppClientesRouteImport } from './routes/_app/clientes'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AppCaixaRouteImport } from './routes/_app/caixa'
+import { Route as AppClientesRouteImport } from './routes/_app/clientes'
+import { Route as AppContasAPagarRouteImport } from './routes/_app/contas-a-pagar'
+import { Route as AppContasAReceberRouteImport } from './routes/_app/contas-a-receber'
+import { Route as AppDespesasRouteImport } from './routes/_app/despesas'
+import { Route as AppLembretesRouteImport } from './routes/_app/lembretes'
+import { Route as AppPainelRouteImport } from './routes/_app/painel'
+import { Route as AppProdutosRouteImport } from './routes/_app/produtos'
+import { Route as AppRelatorioRouteImport } from './routes/_app/relatorio'
+import { Route as AppVendasRouteImport } from './routes/_app/vendas'
 
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -34,53 +38,14 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRoute = AppRouteImport.update({
-  id: '/_app',
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AppVendasRoute = AppVendasRouteImport.update({
-  id: '/vendas',
-  path: '/vendas',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppRelatorioRoute = AppRelatorioRouteImport.update({
-  id: '/relatorio',
-  path: '/relatorio',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppProdutosRoute = AppProdutosRouteImport.update({
-  id: '/produtos',
-  path: '/produtos',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppPainelRoute = AppPainelRouteImport.update({
-  id: '/painel',
-  path: '/painel',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppLembretesRoute = AppLembretesRouteImport.update({
-  id: '/lembretes',
-  path: '/lembretes',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppDespesasRoute = AppDespesasRouteImport.update({
-  id: '/despesas',
-  path: '/despesas',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppContasAReceberRoute = AppContasAReceberRouteImport.update({
-  id: '/contas-a-receber',
-  path: '/contas-a-receber',
-  getParentRoute: () => AppRoute,
-} as any)
-const AppContasAPagarRoute = AppContasAPagarRouteImport.update({
-  id: '/contas-a-pagar',
-  path: '/contas-a-pagar',
+const AppCaixaRoute = AppCaixaRouteImport.update({
+  id: '/caixa',
+  path: '/caixa',
   getParentRoute: () => AppRoute,
 } as any)
 const AppClientesRoute = AppClientesRouteImport.update({
@@ -88,9 +53,44 @@ const AppClientesRoute = AppClientesRouteImport.update({
   path: '/clientes',
   getParentRoute: () => AppRoute,
 } as any)
-const AppCaixaRoute = AppCaixaRouteImport.update({
-  id: '/caixa',
-  path: '/caixa',
+const AppContasAPagarRoute = AppContasAPagarRouteImport.update({
+  id: '/contas-a-pagar',
+  path: '/contas-a-pagar',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppContasAReceberRoute = AppContasAReceberRouteImport.update({
+  id: '/contas-a-receber',
+  path: '/contas-a-receber',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppDespesasRoute = AppDespesasRouteImport.update({
+  id: '/despesas',
+  path: '/despesas',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppLembretesRoute = AppLembretesRouteImport.update({
+  id: '/lembretes',
+  path: '/lembretes',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPainelRoute = AppPainelRouteImport.update({
+  id: '/painel',
+  path: '/painel',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProdutosRoute = AppProdutosRouteImport.update({
+  id: '/produtos',
+  path: '/produtos',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRelatorioRoute = AppRelatorioRouteImport.update({
+  id: '/relatorio',
+  path: '/relatorio',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppVendasRoute = AppVendasRouteImport.update({
+  id: '/vendas',
+  path: '/vendas',
   getParentRoute: () => AppRoute,
 } as any)
 
@@ -199,18 +199,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app': {
@@ -220,67 +213,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/vendas': {
-      id: '/_app/vendas'
-      path: '/vendas'
-      fullPath: '/vendas'
-      preLoaderRoute: typeof AppVendasRouteImport
-      parentRoute: typeof AppRoute
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/relatorio': {
-      id: '/_app/relatorio'
-      path: '/relatorio'
-      fullPath: '/relatorio'
-      preLoaderRoute: typeof AppRelatorioRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/produtos': {
-      id: '/_app/produtos'
-      path: '/produtos'
-      fullPath: '/produtos'
-      preLoaderRoute: typeof AppProdutosRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/painel': {
-      id: '/_app/painel'
-      path: '/painel'
-      fullPath: '/painel'
-      preLoaderRoute: typeof AppPainelRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/lembretes': {
-      id: '/_app/lembretes'
-      path: '/lembretes'
-      fullPath: '/lembretes'
-      preLoaderRoute: typeof AppLembretesRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/despesas': {
-      id: '/_app/despesas'
-      path: '/despesas'
-      fullPath: '/despesas'
-      preLoaderRoute: typeof AppDespesasRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/contas-a-receber': {
-      id: '/_app/contas-a-receber'
-      path: '/contas-a-receber'
-      fullPath: '/contas-a-receber'
-      preLoaderRoute: typeof AppContasAReceberRouteImport
-      parentRoute: typeof AppRoute
-    }
-    '/_app/contas-a-pagar': {
-      id: '/_app/contas-a-pagar'
-      path: '/contas-a-pagar'
-      fullPath: '/contas-a-pagar'
-      preLoaderRoute: typeof AppContasAPagarRouteImport
+    '/_app/caixa': {
+      id: '/_app/caixa'
+      path: '/caixa'
+      fullPath: '/caixa'
+      preLoaderRoute: typeof AppCaixaRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/clientes': {
@@ -290,11 +241,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppClientesRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/caixa': {
-      id: '/_app/caixa'
-      path: '/caixa'
-      fullPath: '/caixa'
-      preLoaderRoute: typeof AppCaixaRouteImport
+    '/_app/contas-a-pagar': {
+      id: '/_app/contas-a-pagar'
+      path: '/contas-a-pagar'
+      fullPath: '/contas-a-pagar'
+      preLoaderRoute: typeof AppContasAPagarRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/contas-a-receber': {
+      id: '/_app/contas-a-receber'
+      path: '/contas-a-receber'
+      fullPath: '/contas-a-receber'
+      preLoaderRoute: typeof AppContasAReceberRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/despesas': {
+      id: '/_app/despesas'
+      path: '/despesas'
+      fullPath: '/despesas'
+      preLoaderRoute: typeof AppDespesasRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/lembretes': {
+      id: '/_app/lembretes'
+      path: '/lembretes'
+      fullPath: '/lembretes'
+      preLoaderRoute: typeof AppLembretesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/painel': {
+      id: '/_app/painel'
+      path: '/painel'
+      fullPath: '/painel'
+      preLoaderRoute: typeof AppPainelRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/produtos': {
+      id: '/_app/produtos'
+      path: '/produtos'
+      fullPath: '/produtos'
+      preLoaderRoute: typeof AppProdutosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/relatorio': {
+      id: '/_app/relatorio'
+      path: '/relatorio'
+      fullPath: '/relatorio'
+      preLoaderRoute: typeof AppRelatorioRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/vendas': {
+      id: '/_app/vendas'
+      path: '/vendas'
+      fullPath: '/vendas'
+      preLoaderRoute: typeof AppVendasRouteImport
       parentRoute: typeof AppRoute
     }
   }
