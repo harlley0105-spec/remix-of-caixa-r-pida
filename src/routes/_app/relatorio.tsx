@@ -15,6 +15,23 @@ const CORES_CATEGORIA = [
   "var(--color-chart-5)",
 ];
 
+function Variacao({ atual, anterior }: { atual: number; anterior: number }) {
+  if (anterior === 0) {
+    return (
+      <p className="mt-1 text-xs text-muted-foreground">
+        {atual === 0 ? "Sem movimento no mês passado." : "Novo em relação ao mês passado."}
+      </p>
+    );
+  }
+  const pct = ((atual - anterior) / Math.abs(anterior)) * 100;
+  const seta = pct > 0 ? "▲" : pct < 0 ? "▼" : "■";
+  return (
+    <p className="mt-1 text-xs text-muted-foreground">
+      {seta} {Math.abs(pct).toFixed(0)}% vs. mês passado
+    </p>
+  );
+}
+
 export const Route = createFileRoute("/_app/relatorio")({
   head: () => ({
     meta: [
@@ -38,14 +55,39 @@ function Relatorio() {
   const [ref, setRef] = useState(() => new Date());
   const { data, isLoading, isError, refetch } = useList("transactions", "occurred_on");
   const range = useMemo(() => monthRange(ref), [ref]);
+  const rangeAnterior = useMemo(() => monthRange(shiftMonth(ref, -1)), [ref]);
 
   const rows = useMemo(
     () => (data ?? []).filter((t) => t.occurred_on >= range.start && t.occurred_on <= range.end),
     [data, range],
   );
+  const rowsAnterior = useMemo(
+    () =>
+      (data ?? []).filter(
+        (t) => t.occurred_on >= rangeAnterior.start && t.occurred_on <= rangeAnterior.end,
+      ),
+    [data, rangeAnterior],
+  );
 
   const entradas = rows.filter((t) => t.kind === "entrada").reduce((a, t) => a + Number(t.amount), 0);
   const saidas = rows.filter((t) => t.kind === "saida").reduce((a, t) => a + Number(t.amount), 0);
+  const entradasAnt = rowsAnterior
+    .filter((t) => t.kind === "entrada")
+    .reduce((a, t) => a + Number(t.amount), 0);
+  const saidasAnt = rowsAnterior
+    .filter((t) => t.kind === "saida")
+    .reduce((a, t) => a + Number(t.amount), 0);
+
+  const gastoAnteriorPorCategoria = useMemo(() => {
+    const map = new Map<string, number>();
+    rowsAnterior
+      .filter((t) => t.kind === "saida")
+      .forEach((t) => {
+        const key = t.category?.trim() || "Sem categoria";
+        map.set(key, (map.get(key) ?? 0) + Number(t.amount));
+      });
+    return map;
+  }, [rowsAnterior]);
 
   const categorias = useMemo(() => {
     const map = new Map<string, number>();
@@ -86,9 +128,15 @@ function Relatorio() {
       ) : (
         <>
           <div className="animate-in fade-in slide-in-from-bottom-2 duration-500 grid gap-3 sm:grid-cols-3">
-            <Card rotulo="Total de entradas" valor={entradas} className="text-entrada" />
-            <Card rotulo="Total de saídas" valor={saidas} className="text-saida" />
-            <Card rotulo="Lucro estimado" valor={entradas - saidas} className="text-acao" />
+            <Card rotulo="Total de entradas" valor={entradas} className="text-entrada">
+              <Variacao atual={entradas} anterior={entradasAnt} />
+            </Card>
+            <Card rotulo="Total de saídas" valor={saidas} className="text-saida">
+              <Variacao atual={saidas} anterior={saidasAnt} />
+            </Card>
+            <Card rotulo="Lucro estimado" valor={entradas - saidas} className="text-acao">
+              <Variacao atual={entradas - saidas} anterior={entradasAnt - saidasAnt} />
+            </Card>
           </div>
 
           <section className="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-100 mt-6 grid gap-4 rounded-xl border border-border bg-card p-4 shadow-livro sm:grid-cols-2">
@@ -110,6 +158,10 @@ function Relatorio() {
                         </span>
                         <span className="valor">{formatMoney(valor)}</span>
                       </div>
+                      <Variacao
+                        atual={valor}
+                        anterior={gastoAnteriorPorCategoria.get(nome) ?? 0}
+                      />
                       <div className="mt-1 h-2 rounded-full bg-muted">
                         <div
                           className="h-2 rounded-full transition-all duration-500"

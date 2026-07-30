@@ -19,6 +19,7 @@ import { Route as AppContasAPagarRouteImport } from './routes/_app/contas-a-paga
 import { Route as AppContasAReceberRouteImport } from './routes/_app/contas-a-receber'
 import { Route as AppDespesasRouteImport } from './routes/_app/despesas'
 import { Route as AppLembretesRouteImport } from './routes/_app/lembretes'
+import { Route as AppOrcamentoRouteImport } from './routes/_app/orcamento'
 import { Route as AppPainelRouteImport } from './routes/_app/painel'
 import { Route as AppProdutosRouteImport } from './routes/_app/produtos'
 import { Route as AppRelatorioRouteImport } from './routes/_app/relatorio'
@@ -73,6 +74,11 @@ const AppLembretesRoute = AppLembretesRouteImport.update({
   path: '/lembretes',
   getParentRoute: () => AppRoute,
 } as any)
+const AppOrcamentoRoute = AppOrcamentoRouteImport.update({
+  id: '/orcamento',
+  path: '/orcamento',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPainelRoute = AppPainelRouteImport.update({
   id: '/painel',
   path: '/painel',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/contas-a-receber': typeof AppContasAReceberRoute
   '/despesas': typeof AppDespesasRoute
   '/lembretes': typeof AppLembretesRoute
+  '/orcamento': typeof AppOrcamentoRoute
   '/painel': typeof AppPainelRoute
   '/produtos': typeof AppProdutosRoute
   '/relatorio': typeof AppRelatorioRoute
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/contas-a-receber': typeof AppContasAReceberRoute
   '/despesas': typeof AppDespesasRoute
   '/lembretes': typeof AppLembretesRoute
+  '/orcamento': typeof AppOrcamentoRoute
   '/painel': typeof AppPainelRoute
   '/produtos': typeof AppProdutosRoute
   '/relatorio': typeof AppRelatorioRoute
@@ -136,6 +144,7 @@ export interface FileRoutesById {
   '/_app/contas-a-receber': typeof AppContasAReceberRoute
   '/_app/despesas': typeof AppDespesasRoute
   '/_app/lembretes': typeof AppLembretesRoute
+  '/_app/orcamento': typeof AppOrcamentoRoute
   '/_app/painel': typeof AppPainelRoute
   '/_app/produtos': typeof AppProdutosRoute
   '/_app/relatorio': typeof AppRelatorioRoute
@@ -153,6 +162,7 @@ export interface FileRouteTypes {
     | '/contas-a-receber'
     | '/despesas'
     | '/lembretes'
+    | '/orcamento'
     | '/painel'
     | '/produtos'
     | '/relatorio'
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/contas-a-receber'
     | '/despesas'
     | '/lembretes'
+    | '/orcamento'
     | '/painel'
     | '/produtos'
     | '/relatorio'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/_app/contas-a-receber'
     | '/_app/despesas'
     | '/_app/lembretes'
+    | '/_app/orcamento'
     | '/_app/painel'
     | '/_app/produtos'
     | '/_app/relatorio'
@@ -269,6 +281,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppLembretesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/orcamento': {
+      id: '/_app/orcamento'
+      path: '/orcamento'
+      fullPath: '/orcamento'
+      preLoaderRoute: typeof AppOrcamentoRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/painel': {
       id: '/_app/painel'
       path: '/painel'
@@ -307,6 +326,7 @@ interface AppRouteChildren {
   AppContasAReceberRoute: typeof AppContasAReceberRoute
   AppDespesasRoute: typeof AppDespesasRoute
   AppLembretesRoute: typeof AppLembretesRoute
+  AppOrcamentoRoute: typeof AppOrcamentoRoute
   AppPainelRoute: typeof AppPainelRoute
   AppProdutosRoute: typeof AppProdutosRoute
   AppRelatorioRoute: typeof AppRelatorioRoute
@@ -320,6 +340,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppContasAReceberRoute: AppContasAReceberRoute,
   AppDespesasRoute: AppDespesasRoute,
   AppLembretesRoute: AppLembretesRoute,
+  AppOrcamentoRoute: AppOrcamentoRoute,
   AppPainelRoute: AppPainelRoute,
   AppProdutosRoute: AppProdutosRoute,
   AppRelatorioRoute: AppRelatorioRoute,
