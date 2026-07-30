@@ -221,15 +221,18 @@ function Card({
   rotulo,
   valor,
   className,
+  children,
 }: {
   rotulo: string;
   valor: number;
   className?: string;
+  children?: React.ReactNode;
 }) {
   return (
     <div className="rounded-xl border border-border bg-card p-4 shadow-livro transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg">
       <p className="text-xs uppercase tracking-wide text-muted-foreground">{rotulo}</p>
       <p className={`valor mt-1 text-xl font-semibold ${className ?? ""}`}>{formatMoney(valor)}</p>
+      {children}
     </div>
   );
 }

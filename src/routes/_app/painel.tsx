@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 import { useList } from "@/lib/data";
 import { formatDate, formatMoney, monthRange, weekAhead } from "@/lib/format";
+import { buildProgress, monthRef } from "@/lib/budget";
+import { BudgetBar } from "@/components/budget-bar";
 import { PageHeader } from "@/components/app-shell";
 import { EmptyState, ErrorState, LoadingState } from "@/components/states";
 import { RecordCard } from "@/components/record-card";
@@ -26,6 +28,7 @@ function Painel() {
   const transactions = useList("transactions", "occurred_on");
   const payables = useList("payables", "due_on", true);
   const receivables = useList("receivables", "due_on", true);
+  const budgets = useList("budgets", "category", true);
 
   if (transactions.isLoading || payables.isLoading || receivables.isLoading)
     return <LoadingState />;
@@ -44,6 +47,13 @@ function Painel() {
     .filter((t) => t.kind === "entrada")
     .reduce((a, t) => a + Number(t.amount), 0);
   const saidasMes = mes.filter((t) => t.kind === "saida").reduce((a, t) => a + Number(t.amount), 0);
+
+  const mesRef = monthRef();
+  const orcamentos = buildProgress(
+    (budgets.data ?? []).filter((b) => b.month_ref === mesRef),
+    mes.filter((t) => t.kind === "saida"),
+  );
+  const emAlerta = orcamentos.filter((o) => o.pct >= 90);
 
   const semana = weekAhead();
   const aPagar = (payables.data ?? []).filter(
@@ -178,6 +188,28 @@ function Painel() {
         <Resumo rotulo="Saiu no mês" valor={saidasMes} tone="saida" />
         <Resumo rotulo="Lucro estimado" valor={entradasMes - saidasMes} destaque />
       </section>
+
+      {orcamentos.length > 0 ? (
+        <section className="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-150 mt-6 rounded-xl border border-border bg-card p-4 shadow-livro">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="font-display text-lg">Orçamento do mês</h2>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/orcamento">Ver tudo</Link>
+            </Button>
+          </div>
+          {emAlerta.length > 0 ? (
+            <p className="mt-2 rounded-md bg-saida-soft px-3 py-2 text-sm text-saida">
+              Atenção: {emAlerta.map((o) => o.category).join(", ")}{" "}
+              {emAlerta.length > 1 ? "passaram" : "passou"} de 90% do limite deste mês.
+            </p>
+          ) : null}
+          <div className="mt-3 space-y-3">
+            {orcamentos.slice(0, 4).map((item) => (
+              <BudgetBar key={item.id} item={item} compact />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="animate-in fade-in slide-in-from-bottom-2 duration-500 delay-200 mt-6">
         <h2 className="font-display text-lg">Lançamentos recentes</h2>
