@@ -5,6 +5,7 @@ import { LogOut, Menu, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCompany } from "@/lib/data";
 import { Button } from "@/components/ui/button";
+import { QuickEntryFab } from "@/components/quick-entry";
 import { cn } from "@/lib/utils";
 
 export const NAV = [
@@ -12,6 +13,7 @@ export const NAV = [
   { to: "/caixa", label: "Caixa" },
   { to: "/vendas", label: "Vendas" },
   { to: "/despesas", label: "Despesas" },
+  { to: "/orcamento", label: "Orçamento" },
   { to: "/contas-a-pagar", label: "A pagar" },
   { to: "/contas-a-receber", label: "A receber" },
   { to: "/clientes", label: "Clientes" },
@@ -97,6 +99,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-6 pb-16">{children}</main>
+      <QuickEntryFab />
     </div>
   );
 }
